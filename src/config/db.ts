@@ -1,12 +1,12 @@
 import mongoose from "mongoose";
-import process from "process";
-
 
 const connectDB = async () => {
   try {
+    if (mongoose.connection.readyState === 1) {
+      return;
+    }
 
     const databaseURL = process.env.MONGODB_URI;
-
 
     if (!databaseURL) {
       throw new Error(
@@ -14,36 +14,16 @@ const connectDB = async () => {
       );
     }
 
+    await mongoose.connect(databaseURL, {
+      dbName: "propertynest",
+    });
 
-    await mongoose.connect(
-      databaseURL,
-      {
-        dbName: "propertynest",
-      }
-    );
-
-
-    console.log(
-      "MongoDB connected successfully"
-    );
-
-    console.log(
-      "Database:",
-      mongoose.connection.name
-    );
-
-
+    console.log("MongoDB connected successfully");
+    console.log("Database:", mongoose.connection.name);
   } catch (error) {
-
-    console.error(
-      "MongoDB connection failed:",
-      error
-    );
-
-    process.exit(1);
-
+    console.error("MongoDB connection failed:", error);
+    throw error;
   }
 };
-
 
 export default connectDB;
