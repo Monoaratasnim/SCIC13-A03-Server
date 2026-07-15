@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { ZodError } from "zod";
 
 import {
   registerUser,
@@ -14,8 +15,6 @@ import { createToken } from "../../utils/jwt";
 
 
 
-
-
 // =====================================================
 // Register Controller
 // =====================================================
@@ -27,54 +26,56 @@ export const registerController = async (
 
   try {
 
-
     const validatedData =
       registerSchema.parse(
         req.body
       );
-
-
 
     const result =
       await registerUser(
         validatedData
       );
 
-
-
     return res.status(201).json({
 
-      success:true,
+      success: true,
 
       message:
         "User registered successfully",
 
-      data:result,
+      data: result,
 
     });
 
+  } catch (error) {
 
+    if (error instanceof ZodError) {
 
-  } catch(error:any){
+      return res.status(400).json({
 
+        success: false,
+
+        message:
+          error.issues[0].message,
+
+      });
+
+    }
 
     return res.status(400).json({
 
-      success:false,
+      success: false,
 
       message:
-        error.message ||
-        "Registration failed",
+        error instanceof Error
+          ? error.message
+          : "Registration failed",
 
     });
-
 
   }
 
 };
-
-
-
 
 
 
@@ -91,55 +92,56 @@ export const loginController = async (
 
   try {
 
-
     const validatedData =
       loginSchema.parse(
         req.body
       );
-
-
 
     const result =
       await loginUser(
         validatedData
       );
 
-
-
     return res.status(200).json({
 
-      success:true,
+      success: true,
 
       message:
         "Login successful",
 
-      data:result,
+      data: result,
 
     });
 
+  } catch (error) {
 
+    if (error instanceof ZodError) {
 
-  } catch(error:any){
+      return res.status(400).json({
 
+        success: false,
+
+        message:
+          error.issues[0].message,
+
+      });
+
+    }
 
     return res.status(401).json({
 
-      success:false,
+      success: false,
 
       message:
-        error.message ||
-        "Login failed",
+        error instanceof Error
+          ? error.message
+          : "Login failed",
 
     });
-
 
   }
 
 };
-
-
-
-
 
 
 
@@ -154,19 +156,15 @@ export const googleCallback = async (
   res: Response
 ) => {
 
-
   try {
-
 
     const user = req.user;
 
-
-
-    if(!user){
+    if (!user) {
 
       return res.status(401).json({
 
-        success:false,
+        success: false,
 
         message:
           "Google authentication failed",
@@ -174,10 +172,6 @@ export const googleCallback = async (
       });
 
     }
-
-
-
-
 
     const token =
       createToken({
@@ -193,32 +187,22 @@ export const googleCallback = async (
 
       });
 
+    return res.redirect(
+      `${process.env.CLIENT_URL}/?token=${token}`
+    );
 
-
-
-
-
-
- return res.redirect(
-  `${process.env.CLIENT_URL}/?token=${token}`
-);
-
-
-
-
-  } catch(error:any){
-
+  } catch (error) {
 
     return res.status(500).json({
 
-      success:false,
+      success: false,
 
       message:
-        error.message ||
-        "Google login failed",
+        error instanceof Error
+          ? error.message
+          : "Google login failed",
 
     });
-
 
   }
 
