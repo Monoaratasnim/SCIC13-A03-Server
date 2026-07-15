@@ -1,51 +1,34 @@
 import { z } from "zod";
 
-
 export const registerSchema = z.object({
-
   name: z
     .string()
-    .min(
-      3,
-      "Name must be at least 3 characters"
-    ),
-
+    .min(1, "Name is required")
+    .min(3, "Name must be at least 3 characters"),
 
   email: z
     .string()
-    .email(
-      "Invalid email address"
-    ),
-
+    .min(1, "Email is required")
+    .email("Please enter a valid email address"),
 
   password: z
     .string()
-    .min(
-      6,
-      "Password must be at least 6 characters"
-    ),
-
+    .min(1, "Password is required")
+    .min(6, "Password must be at least 6 characters"),
 
   role: z
-    .enum([
-      "user",
-      "owner",
-    ])
+    .enum(["user", "owner"])
     .optional(),
-
 });
 
-
-
 export const loginSchema = z.object({
-
   email: z
     .string()
-    .email(),
-
+    .min(1, "Email is required")
+    .email("Please enter a valid email address"),
 
   password: z
     .string()
-    .min(6),
-
+    .min(1, "Password is required")
+    .min(6, "Password must be at least 6 characters"),
 });
